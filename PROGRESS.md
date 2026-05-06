@@ -1,6 +1,11 @@
 # Upcoming — 작업 진행 상황
 
-_마지막 저장: 2026-05-06_
+_마지막 저장: 2026-05-06 — **전체 완료 ✅**_
+
+## 배포 URL
+- **로컬**: http://localhost:3000
+- **GitHub**: https://github.com/ahnsick3k/Upcoming
+- **Vercel**: https://upcoming-beta.vercel.app
 
 ---
 
