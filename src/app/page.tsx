@@ -7,15 +7,68 @@ import { enrichEvent, sortByDday } from '@/lib/dday';
 import EventCard from '@/components/EventCard';
 import EventModal from '@/components/EventModal';
 import AppleConnectModal from '@/components/AppleConnectModal';
+import EventGroupSection from '@/components/EventGroupSection';
 import {
   PlusIcon,
   ArrowPathIcon,
   CalendarIcon,
   Bars3Icon,
   XMarkIcon,
+  ListBulletIcon,
+  CalendarDaysIcon,
 } from '@heroicons/react/24/outline';
+import CalendarView from '@/components/CalendarView';
 
 type FilterTab = 'all' | 'upcoming' | 'today' | 'past';
+type ViewMode = 'list' | 'calendar';
+
+const EVENT_GROUPS = [
+  {
+    key: 'today',
+    label: 'D-DAY',
+    dotColor: 'var(--color-ink-deep)',
+    pillBg: 'rgba(10,19,23,0.1)',
+    match: (e: DayEvent) => e.daysLeft === 0,
+    defaultOpen: true,
+    showFirstOnly: false,
+  },
+  {
+    key: 'urgent',
+    label: '7일 이내',
+    dotColor: '#E02020',
+    pillBg: 'rgba(224,32,32,0.1)',
+    match: (e: DayEvent) => e.daysLeft >= 1 && e.daysLeft <= 7,
+    defaultOpen: true,
+    showFirstOnly: false,
+  },
+  {
+    key: 'soon',
+    label: '한 달 이내',
+    dotColor: '#D4A00A',
+    pillBg: 'rgba(212,160,10,0.12)',
+    match: (e: DayEvent) => e.daysLeft >= 8 && e.daysLeft <= 30,
+    defaultOpen: true,
+    showFirstOnly: false,
+  },
+  {
+    key: 'future',
+    label: '한 달 이후',
+    dotColor: '#0866FF',
+    pillBg: 'rgba(8,102,255,0.1)',
+    match: (e: DayEvent) => e.daysLeft >= 31,
+    defaultOpen: false,
+    showFirstOnly: true,
+  },
+  {
+    key: 'past',
+    label: '지난 일정',
+    dotColor: '#BEC3C9',
+    pillBg: 'rgba(190,195,201,0.2)',
+    match: (e: DayEvent) => e.daysLeft < 0,
+    defaultOpen: false,
+    showFirstOnly: false,
+  },
+] as const;
 
 export default function HomePage() {
   const { data: session, status } = useSession();
@@ -27,6 +80,7 @@ export default function HomePage() {
   const [syncing, setSyncing] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [viewMode, setViewMode] = useState<ViewMode>('list');
 
   const fetchEvents = useCallback(async () => {
     if (!session) return;
@@ -109,6 +163,34 @@ export default function HomePage() {
           <span style={{ fontSize: 18, fontWeight: 700, color: 'var(--color-ink-deep)' }}>Upcoming</span>
         </div>
         <div className="hidden sm:flex items-center gap-2">
+          {/* View mode toggle */}
+          <div className="flex" style={{ border: '1px solid var(--color-hairline)', borderRadius: 8, overflow: 'hidden' }}>
+            <button
+              onClick={() => setViewMode('list')}
+              title="목록 보기"
+              style={{
+                padding: '6px 10px', cursor: 'pointer', border: 'none',
+                background: viewMode === 'list' ? 'var(--color-ink-deep)' : 'transparent',
+                color: viewMode === 'list' ? 'white' : 'var(--color-slate)',
+                transition: 'all 150ms',
+              }}
+            >
+              <ListBulletIcon className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setViewMode('calendar')}
+              title="캘린더 보기"
+              style={{
+                padding: '6px 10px', cursor: 'pointer', border: 'none',
+                borderLeft: '1px solid var(--color-hairline)',
+                background: viewMode === 'calendar' ? 'var(--color-ink-deep)' : 'transparent',
+                color: viewMode === 'calendar' ? 'white' : 'var(--color-slate)',
+                transition: 'all 150ms',
+              }}
+            >
+              <CalendarDaysIcon className="w-4 h-4" />
+            </button>
+          </div>
           <button onClick={syncGoogle} disabled={syncing} className="btn-ghost flex items-center gap-1.5" style={{ padding: '8px 14px', fontSize: 13 }}>
             <ArrowPathIcon className={`w-4 h-4 ${syncing ? 'animate-spin' : ''}`} /> Google 동기화
           </button>
@@ -134,6 +216,22 @@ export default function HomePage() {
       {menuOpen && (
         <div className="sm:hidden fixed inset-0 z-30 pt-16" style={{ background: 'rgba(10,19,23,0.4)' }} onClick={() => setMenuOpen(false)}>
           <div className="flex flex-col gap-2 p-4" style={{ background: 'var(--color-canvas)', borderBottom: '1px solid var(--color-hairline-soft)' }} onClick={(e) => e.stopPropagation()}>
+          <div className="flex gap-1 p-1 mb-1" style={{ border: '1px solid var(--color-hairline)', borderRadius: 8 }}>
+              <button
+                onClick={() => { setViewMode('list'); setMenuOpen(false); }}
+                className={viewMode === 'list' ? 'btn-primary' : 'btn-ghost'}
+                style={{ flex: 1, padding: '8px 12px', fontSize: 13 }}
+              >
+                <ListBulletIcon className="w-4 h-4" /> 목록
+              </button>
+              <button
+                onClick={() => { setViewMode('calendar'); setMenuOpen(false); }}
+                className={viewMode === 'calendar' ? 'btn-primary' : 'btn-ghost'}
+                style={{ flex: 1, padding: '8px 12px', fontSize: 13 }}
+              >
+                <CalendarDaysIcon className="w-4 h-4" /> 캘린더
+              </button>
+            </div>
             <button onClick={() => { syncGoogle(); setMenuOpen(false); }} className="btn-ghost" style={{ justifyContent: 'flex-start', gap: 8 }}>
               <ArrowPathIcon className="w-4 h-4" /> Google 동기화
             </button>
@@ -148,7 +246,8 @@ export default function HomePage() {
         </div>
       )}
 
-      <main className="max-w-2xl mx-auto px-4 py-8">
+      <main className="max-w-2xl mx-auto px-4 py-8" style={{ maxWidth: viewMode === 'calendar' ? 900 : undefined }}>
+        {/* Summary cards — always visible */}
         <div className="grid grid-cols-2 gap-3 mb-6">
           <div className="card-sm flex flex-col gap-1">
             <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-slate)', textTransform: 'uppercase', letterSpacing: 0.5 }}>오늘</span>
@@ -162,38 +261,67 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="flex gap-2 mb-6 overflow-x-auto pb-1">
-          {([
-            { key: 'upcoming', label: '예정' },
-            { key: 'today',    label: '오늘' },
-            { key: 'all',      label: '전체' },
-            { key: 'past',     label: '지난' },
-          ] as const).map(({ key, label }) => (
-            <button key={key} className={`pill-tab ${filter === key ? 'active' : ''}`} onClick={() => setFilter(key)}>
-              {label}
-            </button>
-          ))}
-        </div>
+        {/* ── Calendar view ── */}
+        {viewMode === 'calendar' && (
+          loading ? (
+            <div className="flex justify-center py-16">
+              <ArrowPathIcon className="w-8 h-8 animate-spin" style={{ color: 'var(--color-stone)' }} />
+            </div>
+          ) : (
+            <CalendarView events={events} onEdit={setEditEvent} />
+          )
+        )}
 
-        {loading ? (
-          <div className="flex justify-center py-16">
-            <ArrowPathIcon className="w-8 h-8 animate-spin" style={{ color: 'var(--color-stone)' }} />
-          </div>
-        ) : filteredEvents.length === 0 ? (
-          <div className="card flex flex-col items-center py-16 gap-4" style={{ textAlign: 'center' }}>
-            <CalendarIcon className="w-12 h-12" style={{ color: 'var(--color-stone)' }} />
-            <p style={{ fontSize: 16, fontWeight: 500, color: 'var(--color-slate)' }}>일정이 없습니다</p>
-            <p style={{ fontSize: 14, color: 'var(--color-steel)' }}>+ 일정 추가 버튼을 눌러 새 일정을 만들거나<br />Google / Apple 캘린더를 동기화해보세요.</p>
-            <button onClick={() => setShowAddModal(true)} className="btn-buy" style={{ marginTop: 8 }}>
-              <PlusIcon className="w-4 h-4" /> 일정 추가
-            </button>
-          </div>
-        ) : (
-          <div className="flex flex-col gap-3">
-            {filteredEvents.map((event) => (
-              <EventCard key={event.id} event={event} onEdit={setEditEvent} onDelete={handleDelete} />
-            ))}
-          </div>
+        {/* ── List view ── */}
+        {viewMode === 'list' && (
+          <>
+            <div className="flex gap-2 mb-6 overflow-x-auto pb-1">
+              {([
+                { key: 'upcoming', label: '예정' },
+                { key: 'today',    label: '오늘' },
+                { key: 'all',      label: '전체' },
+                { key: 'past',     label: '지난' },
+              ] as const).map(({ key, label }) => (
+                <button key={key} className={`pill-tab ${filter === key ? 'active' : ''}`} onClick={() => setFilter(key)}>
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            {loading ? (
+              <div className="flex justify-center py-16">
+                <ArrowPathIcon className="w-8 h-8 animate-spin" style={{ color: 'var(--color-stone)' }} />
+              </div>
+            ) : filteredEvents.length === 0 ? (
+              <div className="card flex flex-col items-center py-16 gap-4" style={{ textAlign: 'center' }}>
+                <CalendarIcon className="w-12 h-12" style={{ color: 'var(--color-stone)' }} />
+                <p style={{ fontSize: 16, fontWeight: 500, color: 'var(--color-slate)' }}>일정이 없습니다</p>
+                <p style={{ fontSize: 14, color: 'var(--color-steel)' }}>+ 일정 추가 버튼을 눌러 새 일정을 만들거나<br />Google / Apple 캘린더를 동기화해보세요.</p>
+                <button onClick={() => setShowAddModal(true)} className="btn-buy" style={{ marginTop: 8 }}>
+                  <PlusIcon className="w-4 h-4" /> 일정 추가
+                </button>
+              </div>
+            ) : (
+              <div>
+                {EVENT_GROUPS.map((group) => {
+                  const groupEvents = filteredEvents.filter(group.match);
+                  return (
+                    <EventGroupSection
+                      key={group.key}
+                      label={group.label}
+                      dotColor={group.dotColor}
+                      pillBg={group.pillBg}
+                      events={groupEvents}
+                      defaultOpen={group.defaultOpen}
+                      showFirstOnly={group.showFirstOnly}
+                      onEdit={setEditEvent}
+                      onDelete={handleDelete}
+                    />
+                  );
+                })}
+              </div>
+            )}
+          </>
         )}
       </main>
 
