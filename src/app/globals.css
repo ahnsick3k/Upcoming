@@ -1,0 +1,217 @@
+@import "tailwindcss";
+
+/* ─── Meta Design System Tokens ─────────────────────────── */
+:root {
+  /* Brand & Accent */
+  --color-primary:        #0866FF;
+  --color-primary-deep:   #0143b5;
+  --color-primary-soft:   rgba(8, 102, 255, 0.12);
+  --color-fb-blue:        #1877F2;
+  --color-meta-link:      #0866FF;
+
+  /* Surface */
+  --color-canvas:         #FFFFFF;
+  --color-surface-soft:   #F0F2F5;
+  --color-hairline:       #CED0D4;
+  --color-hairline-soft:  rgba(10, 19, 23, 0.08);
+
+  /* Text */
+  --color-ink-deep:       #0A1317;
+  --color-ink:            #1C1E21;
+  --color-charcoal:       #4B4F56;
+  --color-slate:          #65676B;
+  --color-steel:          #8A8D91;
+  --color-stone:          #BEC3C9;
+  --color-ink-button:     #0A1317;
+  --color-on-ink-button:  #FFFFFF;
+  --color-on-primary:     #FFFFFF;
+  --color-disabled-text:  #BEC3C9;
+
+  /* Semantic */
+  --color-success:        #00A400;
+  --color-attention:      #F7B928;
+  --color-warning:        #FFD700;
+  --color-critical:       #E02020;
+  --color-critical-strong:#CC0000;
+
+  /* Spacing */
+  --spacing-xxs:   4px;
+  --spacing-xs:    8px;
+  --spacing-sm:    10px;
+  --spacing-md:    12px;
+  --spacing-base:  16px;
+  --spacing-lg:    20px;
+  --spacing-xl:    24px;
+  --spacing-xxl:   32px;
+  --spacing-xxxl:  40px;
+  --spacing-section-sm: 48px;
+  --spacing-section:    64px;
+  --spacing-section-lg: 80px;
+  --spacing-hero:       120px;
+
+  /* Border Radius */
+  --rounded-xs:      2px;
+  --rounded-sm:      4px;
+  --rounded-md:      6px;
+  --rounded-lg:      8px;
+  --rounded-xl:      16px;
+  --rounded-xxl:     24px;
+  --rounded-xxxl:    32px;
+  --rounded-feature: 40px;
+  --rounded-full:    100px;
+  --rounded-circle:  50%;
+}
+
+@theme inline {
+  --color-canvas:        var(--color-canvas);
+  --color-surface-soft:  var(--color-surface-soft);
+  --color-ink-deep:      var(--color-ink-deep);
+  --color-ink:           var(--color-ink);
+  --color-charcoal:      var(--color-charcoal);
+  --color-slate:         var(--color-slate);
+  --color-steel:         var(--color-steel);
+  --color-stone:         var(--color-stone);
+  --color-primary:       var(--color-primary);
+  --color-primary-deep:  var(--color-primary-deep);
+  --color-primary-soft:  var(--color-primary-soft);
+  --color-hairline:      var(--color-hairline);
+  --color-hairline-soft: var(--color-hairline-soft);
+  --color-success:       var(--color-success);
+  --color-attention:     var(--color-attention);
+  --color-warning:       var(--color-warning);
+  --color-critical:      var(--color-critical);
+  --font-sans: Montserrat, Helvetica, Arial, "Noto Sans", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: Montserrat, Helvetica, Arial, "Noto Sans", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Utility Classes ────────────────────────────────────── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: var(--color-ink-button);
+  color: var(--color-on-ink-button);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.43;
+  letter-spacing: -0.14px;
+  padding: 14px 30px;
+  border-radius: var(--rounded-full);
+  border: none;
+  cursor: pointer;
+  transition: background 150ms ease-out;
+  white-space: nowrap;
+}
+.btn-primary:active { background: var(--color-charcoal); }
+.btn-primary:disabled { background: var(--color-disabled-text); cursor: not-allowed; }
+
+.btn-buy {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-size: 14px;
+  font-weight: 700;
+  padding: 14px 30px;
+  border-radius: var(--rounded-full);
+  border: none;
+  cursor: pointer;
+  transition: background 150ms ease-out;
+  white-space: nowrap;
+}
+.btn-buy:active { background: var(--color-primary-deep); }
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: transparent;
+  color: var(--color-ink-deep);
+  font-size: 14px;
+  font-weight: 700;
+  padding: 12px 28px;
+  border-radius: var(--rounded-full);
+  border: 2px solid var(--color-ink-deep);
+  cursor: pointer;
+  transition: opacity 150ms ease-out;
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: transparent;
+  color: var(--color-ink-deep);
+  font-size: 14px;
+  font-weight: 700;
+  padding: 10px 22px;
+  border-radius: var(--rounded-full);
+  border: 2px solid var(--color-hairline-soft);
+  cursor: pointer;
+}
+
+.pill-tab {
+  display: inline-flex;
+  align-items: center;
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-size: 14px;
+  font-weight: 700;
+  padding: 8px 16px;
+  border-radius: var(--rounded-full);
+  border: 1px solid var(--color-hairline);
+  cursor: pointer;
+  transition: all 150ms ease-out;
+  white-space: nowrap;
+}
+.pill-tab.active {
+  background: var(--color-ink-deep);
+  color: var(--color-canvas);
+  border-color: transparent;
+}
+
+.card {
+  background: var(--color-canvas);
+  border-radius: var(--rounded-xxxl);
+  border: 1px solid var(--color-hairline-soft);
+  padding: var(--spacing-xxl);
+}
+
+.card-sm {
+  background: var(--color-canvas);
+  border-radius: var(--rounded-xl);
+  border: 1px solid var(--color-hairline-soft);
+  padding: var(--spacing-xl);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.33;
+  border-radius: var(--rounded-full);
+  padding: 4px 10px;
+  white-space: nowrap;
+}
+.badge-primary  { background: var(--color-primary);   color: white; }
+.badge-success  { background: var(--color-success);   color: white; }
+.badge-warning  { background: var(--color-warning);   color: var(--color-ink-deep); }
+.badge-critical { background: var(--color-critical);  color: white; }
+.badge-steel    { background: var(--color-surface-soft); color: var(--color-slate); }
+.badge-today    { background: var(--color-ink-deep);  color: white; }
